@@ -38,7 +38,7 @@ pub struct ClaimableBalance {
     pub token: Address,
     pub amount: i128,
     pub claimants: Vec<Address>,
-    pub timeBounds: TimeBound,
+    pub time_bound: TimeBound,
 }
 
 #[contract]
@@ -59,7 +59,7 @@ fn check_time_bound(e: &Env, time_bound: &TimeBound) -> bool {
 #[contractimpl]
 impl ClaimableBalanceContract {
     pub fn deposit(
-        e: Env,
+        env: Env,
         from: Address,
         token: Address,
         amount: i128,
@@ -69,6 +69,7 @@ impl ClaimableBalanceContract {
             if claimants.len() > 10 {
                 panic!("Too many claimants, max 10 allowed");
             }
+
             if is_initialized(&env) {
                 panic!("Contract already initialized");
             }
@@ -79,9 +80,9 @@ impl ClaimableBalanceContract {
             // Transfer token from *from' to this contract address.
             token::Client::new(&env, &token).transfer(&from, &env.current_contract_address(), &amount);
             // Store all the necessary info to allow one of the claimants to claim it.
-            env.strorage().instance().set(
+            env.storage().instance().set(
                 &DataKey::Balance,
-                ClaimableBalance {
+                &ClaimableBalance {
                     token,
                     amount,
                     time_bound,
@@ -124,14 +125,21 @@ impl ClaimableBalanceContract {
         env.storage().instance().remove(&DataKey::Balance);
     }
 
-    fn is_initialized(env: &Env) -> bool {
-        env.storage().instance().has(&DataKey::Init)
-    }
+  
 
 }
 
-#[cfg(test)]
-    mod test{
-        
+  fn is_initialized(env: &Env) -> bool {
+        env.storage().instance().has(&DataKey::Init)
     }
 
+// ...existing code...
+
+
+
+#[cfg(test)]
+mod test {
+    // Buraya test fonksiyonlarını yazabilirsin
+}
+
+// ...existing code...
