@@ -1,0 +1,10 @@
+[package]
+name = "atomic_swap"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+soroban-sdk = "20.5.0"
+
+[dev-dependencies]
+soroban-sdk = { version = "20.5.0", features = ["testutils"] }
