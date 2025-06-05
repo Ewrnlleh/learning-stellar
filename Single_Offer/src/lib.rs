@@ -5,6 +5,7 @@
 #![no_std]
 
 use soroban_sdk::{contract, contractimpl, contracttype, token, Address, Env};
+use soroban_sdk::unwrap::UnwrapOptimized;
 
 // Represents the storage keys for the contract.
 #[derive(Clone)]
@@ -32,22 +33,23 @@ pub struct Offer {
 
 
 #[contract]
-
 pub struct SingleOffer;
 
-//! How this contract should be used:
-//! 1. Call `create` once to create the offer and register its seller.
-//! 2. Seller may transfer arbitrary amounts of the `sell_token` for sale to the
-//!    contract address for trading. They may also update the offer price.
-//! 3. Buyers may call `trade` to trade with the offer. The contract will
-//!    immediately perform the trade and send the respective amounts
-//!    of `buy_token` and `sell_token` to the seller and buyer respectively.
-//! 4. Seller may call `withdraw` to claim any remaining `sell_token` balance.
+/*
+ How this contract should be used:
+ 1. Call `create` once to create the offer and register its seller.
+ 2. Seller may transfer arbitrary amounts of the `sell_token` for sale to the
+    contract address for trading. They may also update the offer price.
+ 3. Buyers may call `trade` to trade with the offer. The contract will
+   immediately perform the trade and send the respective amounts
+   of `buy_token` and `sell_token` to the seller and buyer respectively.
+ 4. Seller may call `withdraw` to claim any remaining `sell_token` balance.
+*/
 
 #[contractimpl]
 impl SingleOffer {
-    /// Creates the offer for seller for the given token pair and initial price.
-    /// See comment above the `Offer` struct for information on pricing.
+    // Creates the offer for seller for the given token pair and initial price.
+    // See comment above the `Offer` struct for information on pricing.
     pub fn create(
         e: Env,
         seller: Address,
@@ -99,7 +101,7 @@ impl SingleOffer {
 
         // Compute the amount of sell_token that buyer needs to receive.
         // sell_token_amount = buy_token_amount * sell_price / buy_price
-        let sell_token_amount: i128 = buy_token_amount i128
+        let sell_token_amount: i128 = buy_token_amount
             .checked_mul(offer.sell_price as i128)
             .unwrap_optimized()
             / offer.buy_price as i128;
@@ -167,14 +169,16 @@ impl SingleOffer {
         read_offer(&e)
     }
 
+}
 
-    fn read_offer(e: &Env) -> Offer {
-        e.storage().instance().get(&DataKey::Offer).unwrap()
-    }
 
-    fn write_offer(e: &Env, offer: Offer) {
-        e.storage().instance().set(&DataKey::Offer, &offer);
-    }
+fn read_offer(e: &Env) -> Offer {
+    e.storage().instance().get(&DataKey::Offer).unwrap()
+}
+
+fn write_offer(e: &Env, offer: Offer) {
+    e.storage().instance().set(&DataKey::Offer, &offer);
+}
 
 
 
@@ -182,6 +186,4 @@ impl SingleOffer {
 
       
 
-
-}
 
