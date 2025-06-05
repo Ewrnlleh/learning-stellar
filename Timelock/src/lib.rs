@@ -29,7 +29,7 @@ pub enum TimeBoundKind {
 #[contracttype]
 pub struct TimeBound {
     pub kind: TimeBoundKind,
-    pub timeStamp: u64,
+    pub timestamp: u64,
 }
 
 #[derive(Clone)]
@@ -50,8 +50,8 @@ fn check_time_bound(e: &Env, time_bound: &TimeBound) -> bool {
     let ledger_timestamp: u64 = e.ledger().timestamp();
 
     match time_bound.kind {
-        TimeBoundKind::Before => ledger_timestamp < time_bound.timeStamp,
-        TimeBoundKind::After => ledger_timestamp > time_bound.timeStamp,
+        TimeBoundKind::Before => ledger_timestamp <= time_bound.timestamp,
+        TimeBoundKind::After => ledger_timestamp >= time_bound.timestamp,
     }
 }
 
@@ -65,44 +65,44 @@ impl ClaimableBalanceContract {
         amount: i128,
         claimants: Vec<Address>,
         time_bound: TimeBound,
-        ) {
-            if claimants.len() > 10 {
-                panic!("Too many claimants, max 10 allowed");
-            }
-
-            if is_initialized(&env) {
-                panic!("Contract already initialized");
-            }
-            // Make sure 'from' address authorized the deposit call with all the
-            // arguments.
-            from.require_auth();
-            
-            // Transfer token from *from' to this contract address.
-            token::Client::new(&env, &token).transfer(&from, &env.current_contract_address(), &amount);
-            // Store all the necessary info to allow one of the claimants to claim it.
-            env.storage().instance().set(
-                &DataKey::Balance,
-                &ClaimableBalance {
-                    token,
-                    amount,
-                    time_bound,
-                    claimants,
-                },
-            );
-            // Mark contract as initialized to prevent double—usage.
-            // Note, that this is just one way to approach initialization - it may
-            // be viable to allow one contract to manage several claimable balances.
-            env.storage().instance().set(&DataKey::Init, &());
+    ) {
+        if claimants.len() > 10 {
+            panic!("Too many claimants, max 10 allowed");
         }
+
+        if is_initialized(&env) {
+            panic!("Contract already initialized");
+        }
+        // Make sure 'from' address authorized the deposit call with all the
+        // arguments.
+        from.require_auth();
+        
+        // Transfer token from *from' to this contract address.
+        token::Client::new(&env, &token).transfer(&from, &env.current_contract_address(), &amount);
+        // Store all the necessary info to allow one of the claimants to claim it.
+        env.storage().instance().set(
+            &DataKey::Balance,
+            &ClaimableBalance {
+                token,
+                amount,
+                time_bound,
+                claimants,
+            },
+        );
+        // Mark contract as initialized to prevent double—usage.
+        // Note, that this is just one way to approach initialization - it may
+        // be viable to allow one contract to manage several claimable balances.
+        env.storage().instance().set(&DataKey::Init, &());
+    }
 
     pub fn claim(env: Env, claimant: Address) {
         // Make sure claimant has authorized this call, which ensures their
         // identity.
-        let claimable_balance: ClaimableBalance = env
-            .storage()
-            .instance()
-            .get(&DataKey::Balance)
-            .unwrap();
+        claimant.require_auth();
+        // Just get the balance - if it's been claimed, this will simply panic.
+        // and terminate the contract execution.
+        let claimable_balance: ClaimableBalance = 
+            env.storage().instance().get(&DataKey::Balance).unwrap();
 
         if !check_time_bound(&env, &claimable_balance.time_bound) {
             panic!("Claim time bound not satisfied");
@@ -129,17 +129,7 @@ impl ClaimableBalanceContract {
 
 }
 
-  fn is_initialized(env: &Env) -> bool {
-        env.storage().instance().has(&DataKey::Init)
-    }
 
-// ...existing code...
-
-
-
-#[cfg(test)]
-mod test {
-    // Buraya test fonksiyonlarını yazabilirsin
+fn is_initialized(env: &Env) -> bool {
+    env.storage().instance().has(&DataKey::Init)
 }
-
-// ...existing code...
