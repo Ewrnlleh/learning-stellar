@@ -2,7 +2,7 @@
 
 mod admin;
 mod allowance;
-mod balan+;
+mod balance;
 mod contract;
 mod metadata;
 mod storage_types;
