@@ -34,10 +34,10 @@ fn main() {
     //}
 
     let e: EventForKids = EventForKids {
-        name: String = String::from("KidsCo"),
-        date: String = String::from("04.03.2024"),
-        number_of_participants: u32 = 1000,
-        place: String = String::from("NY, USA")
+        name: String::from("KidsCo"),
+        date: String::from("04.03.2024"),
+        number_of_participants: 1000,
+        place: String::from("NY, USA")
     };
 
     // add your enum in here...
