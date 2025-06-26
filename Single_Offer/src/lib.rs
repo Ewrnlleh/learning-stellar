@@ -1,7 +1,7 @@
 // ! This contract implements trading of one token pair between one seller and
 // ! multiple buyers.
 // ! It demonstrates one of the ways of how trading might be implemented.
-
+ 
 #![no_std]
 
 use soroban_sdk::{contract, contractimpl, contracttype, token, Address, Env};

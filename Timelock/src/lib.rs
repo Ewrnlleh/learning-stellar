@@ -4,7 +4,7 @@
 // ! The contract allows to deposit some amount of token and allow another
 // ! account(s) claim it before or after provided time point.
 // ! For simplicity, the contract only supports invoker—based auth.
-
+ 
 #![no_std]
 
 use soroban_sdk::{contract, contractimpl, contracttype, token, Address, Env, Vec};

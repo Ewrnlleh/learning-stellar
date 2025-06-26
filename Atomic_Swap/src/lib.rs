@@ -1,7 +1,7 @@
 //! This contract performs an atomic token swap between two parties.
 //! Parties don't need to know each other and their signatures may be matched off-chain.
 //! This example demonstrates how multi-party authorization can be implemented.
-
+ 
 #![no_std]
 
 use soroban_sdk::{contract, contractimpl, token, Address, Env, IntoVal};
